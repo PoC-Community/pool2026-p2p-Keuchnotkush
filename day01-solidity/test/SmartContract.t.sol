@@ -3,33 +3,82 @@ pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
 import "../src/SmartContract.sol";
+import "../src/interfaces/ISmartContract.sol";
+
+contract SmartContractHelper is SmartContract {
+
+    function exposedSetAreYouABadPerson(bool status) public {
+        _setAreYouABadPerson(status);
+    }
+
+    function exposedAreYouABadPerson() public view returns (bool) {
+        return _areYouABadPerson;
+    }
+
+    function exposedMyInformations()
+        public
+        view
+        returns (ISmartContract.Informations memory)
+    {
+        return myInformations;
+    }
+}
 
 contract SmartContractTest is Test {
-    SmartContractHelper helper;
-    
-    uint256 HAL; address MEC; string PIW;
-    uint256 H = 21;
+
+    SmartContractHelper smartContract;
+    address owner = address(0x1);
+
     function setUp() public {
-        helper = new SmartContractHelper();
-        HAL = helper.getHalfAnswerOfLife();
-        MEC = helper.myEtherumContractAddress();
-        PIW = helper.PoCIsWhat();
+        vm.prank(owner);
+        smartContract = new SmartContractHelper();
+    }
+
+    function testGetHalfAnswerOfLife() public {
+        assertEq(smartContract.getHalfAnswerOfLife(), 21);
+    }
+
+    function testSetAreYouABadPerson() public {
+        smartContract.exposedSetAreYouABadPerson(true);
+        assertTrue(smartContract.exposedAreYouABadPerson());
+    }
+
+    function testMyInformations() public {
+        ISmartContract.Informations memory info =
+            smartContract.exposedMyInformations();
+
+        assertEq(info.firstName, "Keuch");
+        assertEq(info.lastName, "Fall");
+        assertEq(info.age, 20);
+        assertEq(info.city, "Dakar");
+    }
+
+    function testGetFullName() public {
+        string memory fullName = smartContract.getMyFullName();
+        assertEq(fullName, "Keuch Fall");
+    }
+
+    function testCompleteHalfAnswerOfLifeAsOwner() public {
+        vm.prank(owner);
+        smartContract.completeHalfAnswerOfLife();
+
+        assertEq(smartContract.getHalfAnswerOfLife(), 42);
     }
 
 
-    function testAnswer() public view {
-        assertEq(HAL,H);
-        assertEq(MEC,address(helper));
-        assertEq(PIW,"PoC is good, PoC is life.");
+    function testCompleteHalfAnswerOfLifeAsNotOwner() public {
+        address attacker = address(0xBEEF);
+
+        vm.prank(attacker);
+        vm.expectRevert("Not the owner");
+
+        smartContract.completeHalfAnswerOfLife();
     }
 
-    function testStructComplete() public view {
-        (string memory firstName, string memory lastName, uint8 age, string memory city, SmartContract.roleEnum role) = helper.myInformations();
-        assertEq(firstName, "Keuch");
-        assertEq(lastName, "Fall");
-        assertEq(age, 20);
-        assertEq(city, "Paris");
-        assertEq(uint256(role), uint256(SmartContract.roleEnum.STUDENT));
-    }
+    function testHashMyMessage() public {
+        bytes32 hash = smartContract.hashMyMessage("hello");
+        bytes32 expected = keccak256(abi.encodePacked("hello"));
 
+        assertEq(hash, expected);
+    }
 }
