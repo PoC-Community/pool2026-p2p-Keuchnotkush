@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
+
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-event Deposit(address indexed user, uint256 assets, uint256 shares);
-event Withdraw(address indexed user, uint256 assets, uint256 shares);
-error ZeroAmount();
-error InsufficientShares();
-error ZeroShares();
 contract Vault is ReentrancyGuard, Ownable {
+    event Deposit(address indexed user, uint256 assets, uint256 shares);
+    event Withdraw(address indexed user, uint256 assets, uint256 shares);
+    error ZeroAmount();
+    error InsufficientShares();
+    error ZeroShares();
     IERC20 immutable asset;
     uint256 public totalShares;
     mapping(address => uint256) public sharesOf;
@@ -75,6 +76,7 @@ contract Vault is ReentrancyGuard, Ownable {
 
     function previewWithdraw(uint256 shares) external view returns (uint256 assets) {
         return _convertToAssets(shares);}
+
 
 
 
