@@ -1,0 +1,6 @@
+[submodule "day02-solidity/lib/openzeppelin-contracts"]
+	path = day02-solidity/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "day03-solidity/lib/openzeppelin-contracts"]
+	path = day03-solidity/lib/openzeppelin-contracts
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts
